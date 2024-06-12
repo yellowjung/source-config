@@ -1,0 +1,14 @@
+apiVersion: backstage.io/v1alpha1
+kind: API
+metadata:
+  name: testapp1-api
+  description: testapp1 API
+  tags:
+    - springboot
+    - query
+spec:
+  type: openapi
+  lifecycle: experimental
+  owner: user:guest
+  definition: |
+    openapi: 3.0.1

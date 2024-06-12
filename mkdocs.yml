@@ -1,0 +1,10 @@
+site_name: testapp1
+site_description: Hello World
+repo_url: "https://github.com?owner=yellowjung&repo=source-config"
+edit_uri: edit/master/docs
+
+plugins:
+  - techdocs-core
+
+nav:
+  - Introduction: index.md

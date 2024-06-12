@@ -1,0 +1,92 @@
+stages:
+  - sonarqube-check
+  - build
+  - kaniko_build_and_push
+  - update_helm_chart
+
+variables:
+  REGISTRY_URL: "https://private-poc.duckdns.org:30711/"
+  PROJECT_NAME: "my-project"
+  IMAGE_TAG: $CI_COMMIT_SHORT_SHA
+  IMAGE_NAME: "testapp1"
+  DOCKER_TLS_CERTDIR: ""
+
+cache:
+  paths:
+    - .m2/repository
+    - .gradle
+
+before_script:
+  - export GRADLE_USER_HOME=$(pwd)/.gradle
+
+sonarqube-check:
+  stage: sonarqube-check
+  image: gradle:8.2.0-jdk17-jammy
+  variables:
+    SONAR_USER_HOME: "${CI_PROJECT_DIR}/.sonar" # Defines the location of the analysis task cache
+    GIT_DEPTH: "0" # Tells git to fetch all the branches of the project, required by the analysis task
+  cache:
+    key: "${CI_JOB_NAME}"
+    paths:
+      - .sonar/cache
+  script: gradle sonar
+  allow_failure: true
+  only:
+    - merge_requests
+    - master
+    - main
+    - develop
+
+build:
+  stage: build
+  image: gradle:7.6.4-jdk17
+  script:
+    - gradle build
+  artifacts:
+    paths:
+      - build/libs/*.jar
+
+kaniko_build_and_push:
+  stage: kaniko_build_and_push
+  image:
+    name: gcr.io/kaniko-project/executor:debug
+    entrypoint: [""]
+  dependencies:
+    - build
+  script:
+    - mkdir -p /kaniko/.docker
+    - echo "{\"auths\":{\"$REGISTRY_URL\":{\"username\":\"$CI_REGISTRY_USER\",\"password\":\"$CI_REGISTRY_PASSWORD\"}}}" > /kaniko/.docker/config.json
+    - /kaniko/executor --context $CI_PROJECT_DIR --dockerfile $CI_PROJECT_DIR/Dockerfile --destination $REGISTRY_URL/$PROJECT_NAME/$IMAGE_NAME:$IMAGE_TAG --insecure --insecure-pull
+  artifacts:
+    paths:
+      - build/libs/*.jar
+
+update_helm_chart:
+  stage: update_helm_chart
+  image: ubuntu:22.04
+  before_script:
+    - "which ssh-agent || ( apt-get update -y && apt-get install openssh-client git -y )"
+    - mkdir -p ~/.ssh
+    - echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
+    - chmod 600 ~/.ssh/id_rsa
+    - ssh-keyscan -H saas-git.duckdns.org >> ~/.ssh/known_hosts
+    - chmod 644 ~/.ssh/known_hosts
+      # run ssh-agent
+    - eval $(ssh-agent -s)
+      # add ssh key stored in SSH_PRIVATE_KEY variable to the agent store
+    - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add -
+    # Git
+    - git config --global user.email "gitlab-ci@gmail.com"
+    - git config --global user.name "gitlab-ci"
+    ##### TODO: 이 부분 입력 값으로 수정
+    - git clone git@saas-git.duckdns.org:yellowjung/helm-config.git
+
+    ##### TODO: 이 부분 입력 값으로 수정
+    - cd helm-config
+    - ls -latr
+  script:
+    # Update Image TAG
+    - sed -i "s/testapp1:.*/testapp1:${CI_COMMIT_SHORT_SHA}/g" testapp1/values.yaml
+    - git add testapp1/values.yaml
+    - git commit -am "Update Image"
+    - git push

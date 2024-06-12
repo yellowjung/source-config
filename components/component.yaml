@@ -1,0 +1,17 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: testapp1
+  description: |
+    이 애플리케이션은 SpringBoot Application 서버입니다.
+  annotations:
+    backstage.io/techdocs-ref: dir:../
+    argocd/app-name: testapp1
+    sonarqube.org/project-key: default/poc
+spec:
+  type: website
+  owner: user:guest
+  system: example
+  lifecycle: experimental
+  providesApisf:
+    - testapp1-api

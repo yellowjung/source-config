@@ -1,0 +1,17 @@
+apiVersion: backstage.io/v1alpha1
+kind: Location
+metadata:
+  name: springboot-config-app
+  description: Spring boot config app 입니다.
+spec:
+  targets:
+    - ./all-apis.yaml
+    - ./all-components.yaml
+
+---
+apiVersion: backstage.io/v1alpha1
+kind: System
+metadata:
+  name: testapp1
+spec:
+  owner: user:guest

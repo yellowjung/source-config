@@ -1,0 +1,8 @@
+apiVersion: backstage.io/v1alpha1
+kind: Location
+metadata:
+  name: config-server-all-apis
+  description: A collection of all Backstage event-sourcing-poc APIs
+spec:
+  targets:
+    - ./apis/api.yaml
