@@ -9,8 +9,7 @@ metadata:
   description: |
     이 애플리케이션은 SpringBoot Application 서버입니다.
   annotations:
-    aws.amazon.com/aws-codebuild-project-arn: value
-    aws.amazon.com/aws-codebuild-project-tags: value
+    aws.amazon.com/aws-codebuild-project-arn: arn:aws:codebuild:ap-northeast-2:381491950219:project/github-connect
     backstage.io/techdocs-ref: dir:../
     argocd/app-name: testapp1
     sonarqube.org/project-key: default/poc
