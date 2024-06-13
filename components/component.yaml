@@ -11,6 +11,7 @@ metadata:
   annotations:
     aws.amazon.com/aws-codebuild-project-arn: arn:aws:codebuild:ap-northeast-2:381491950219:project/github-connect
     aws.amazon.com/aws-codepipeline-arn: arn:aws:codepipeline:ap-northeast-2:381491950219:testpipe
+    aws.amazon.com/amazon-ecs-service-arn: arn:aws:ecs:us-east-1:381491950219:cluster/ecsCluster
     backstage.io/techdocs-ref: dir:../
     argocd/app-name: testapp1
     sonarqube.org/project-key: default/poc
